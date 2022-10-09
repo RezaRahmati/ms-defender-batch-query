@@ -1,8 +1,10 @@
-#Setup#
-`npm install`
+# Setup
+- install nodejs v16+
+- Run `npm install`
+- Edit your .env file
 
-#Run#
+# Run
 `npm start`
 
-#Queries#
+# Queries
 https://github.com/Azure/Azure-Sentinel/tree/master/Hunting%20Queries/Microsoft%20365%20Defender
