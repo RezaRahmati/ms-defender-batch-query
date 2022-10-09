@@ -1,0 +1,20 @@
+{
+    "name": "ms-defender-batch-query",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+        "start": "node ./index.js",
+        "start:dev": "nodemon ./index.js"
+    },
+    "author": "Reza Rahmati",
+    "license": "ISC",
+    "dependencies": {
+        "dotenv": "^16.0.3",
+        "globby": "^13.1.2"
+    },
+    "devDependencies": {
+        "nodemon": "^2.0.20"
+    }
+}
