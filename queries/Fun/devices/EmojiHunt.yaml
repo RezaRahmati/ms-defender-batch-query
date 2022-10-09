@@ -1,0 +1,9 @@
+id: 3e246f82-6a80-4cd3-8d4c-8afa2b7451d3
+name: Devices
+description: Test
+requiredDataConnectors:
+- connectorId: MicrosoftThreatProtection
+  dataTypes:
+  - DeviceProcessEvents
+query: |
+  DeviceRegistryEvents | limit 10
