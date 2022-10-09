@@ -11,8 +11,13 @@
     "author": "Reza Rahmati",
     "license": "ISC",
     "dependencies": {
+        "bottleneck": "^2.19.5",
         "dotenv": "^16.0.3",
-        "globby": "^13.1.2"
+        "globby": "^13.1.2",
+        "js-yaml": "^4.1.0",
+        "json-2-csv": "^3.17.2",
+        "moment": "^2.29.4",
+        "node-fetch": "^3.2.10"
     },
     "devDependencies": {
         "nodemon": "^2.0.20"
