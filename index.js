@@ -26,6 +26,7 @@ let accessToken = null;
         const queryPath = process.env.QUERY_PATH;
         const outputPath = process.env.OUTPUT_PATH;
         const outputFlat = (process.env.OUTPUT_FLAT || 'false').toLowerCase() === 'true';
+        const skipIfNoResult = (process.env.SKIP_IF_NO_RESULT || 'true').toLowerCase() === 'true';
 
         // Get the files as an array
         const queryFiles = await globby([`${queryPath}/**/*.yaml`]);
@@ -52,6 +53,10 @@ let accessToken = null;
                 const result = await limiter.schedule(() => runQuery(yaml.query))
 
                 console.log(`${yaml.name}:${result.length}`);
+
+                if (result.length === 0 && skipIfNoResult) {
+                    continue;
+                }
 
                 const queryResultCsv = await converter.json2csvAsync(result);
 
