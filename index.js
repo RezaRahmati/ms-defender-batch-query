@@ -24,35 +24,44 @@ let accessToken = null;
         const dateTime = getDate();
 
         const queryPath = process.env.QUERY_PATH;
-        const outputPath = process.env.OUTPUT_PATH;
+        const outputPath = path.join(process.env.OUTPUT_PATH, dateTime);
         const outputFlat = (process.env.OUTPUT_FLAT || 'false').toLowerCase() === 'true';
         const skipIfNoResult = (process.env.SKIP_IF_NO_RESULT || 'true').toLowerCase() === 'true';
+
+        const logFile = path.join(outputPath, 'log.txt');
+
+        if (!fs.existsSync(outputPath)) {
+            fs.mkdirSync(outputPath, { recursive: true });
+        }
+
+        logMessage(`Started ${new Date().toISOString()}`, logFile);
+
 
         // Get the files as an array
         const queryFiles = await globby([`${queryPath}/**/*.yaml`]);
 
-        console.log(`${queryFiles.length} files found in ${queryPath} and sub folders`);
+        logMessage(`${queryFiles.length} files found in ${queryPath} and sub folders`, logFile);
 
         for (const file of queryFiles) {
 
-            console.log("Reading '%s' ", file);
+            logMessage(`Reading ${file}`, logFile);
 
             const yaml = Yaml.load(fs.readFileSync(file, { encoding: 'utf8' }));
 
             if (!yaml.query) {
-                console.error(`Error ${file}: query not found`);
+                logMessage(`Error ${file}: query not found`, logFile);
                 continue;
             }
 
             if (!yaml.name) {
-                console.error(`Error ${file}: name not found`);
+                logMessage(`Error ${file}: name not found`, logFile);
                 continue;
             }
 
             try {
                 const result = await limiter.schedule(() => runQuery(yaml.query))
 
-                console.log(`${yaml.name}:${result.length}`);
+                logMessage(`${yaml.name}:${result.length}`, logFile);
 
                 if (result.length === 0 && skipIfNoResult) {
                     continue;
@@ -60,7 +69,7 @@ let accessToken = null;
 
                 const queryResultCsv = await converter.json2csvAsync(result);
 
-                let folder = path.join(outputPath, dateTime);
+                let folder = outputPath;
                 if (outputFlat === false) {
                     folder = path.join(folder, path.dirname(file).replace(queryPath, ''));
                 }
@@ -75,15 +84,21 @@ let accessToken = null;
                 );
             }
             catch (e) {
-                console.error(`Error Running Query ${file}`, e.message);
+                logMessage('------ error start -------', logFile);
+                logMessage(yaml.query, logFile);
+                logMessage(`Error Running Query ${file}`, logFile);
+                logMessage(e.message, logFile);
+                logMessage('-------  error end  ------', logFile);
             }
         }
 
+        logMessage(`Done ${new Date().toISOString()}`, logFile);
         console.timeEnd('Done')
 
     }
     catch (e) {
-        console.error("Whoops!", e.message);
+        logMessage("Whoops!", logFile);
+        logMessage(e.message, logFile);
     }
 
 })();
@@ -142,4 +157,9 @@ async function getAccessToken() {
     }).then(res => res.json());
 
     return response.access_token;
+}
+
+async function logMessage(message, logFile) {
+    console.log(message);
+    fs.appendFileSync(logFile, message + '\r\n');
 }
